@@ -1,0 +1,143 @@
+# Roast Analysis Configuration
+# Professional coffee roasting parameter settings
+
+roast_targets:
+  # Target parameters for scoring system
+  duration_minutes: 10.5
+  drop_temperature_f: 388
+  development_ratio: 22.5  # percentage
+  first_crack_time_ratio: 0.7  # 70% through roast
+
+quality_thresholds:
+  excellent:
+    min_score: 80
+    max_duration_variance: 1.0  # minutes
+    max_temp_variance: 8  # fahrenheit
+    ror_smoothness_min: 0.85
+  
+  good:
+    min_score: 60
+    max_duration_variance: 2.0
+    max_temp_variance: 15
+    ror_smoothness_min: 0.7
+  
+  fair:
+    min_score: 40
+    max_duration_variance: 3.0
+    max_temp_variance: 25
+    ror_smoothness_min: 0.5
+
+scoring_weights:
+  # Composite score component weights (must sum to 1.0)
+  ror_score: 0.40
+  timing_score: 0.20
+  temperature_score: 0.20
+  development_score: 0.20
+
+data_processing:
+  # Data cleaning and processing parameters
+  hampel_filter:
+    window_size: 11
+    n_sigma: 3.0
+  
+  outlier_detection:
+    temperature_min: 100  # fahrenheit
+    temperature_max: 500
+    ror_min: -50  # degrees per minute
+    ror_max: 100
+  
+  smoothing:
+    savgol_window: 21
+    savgol_polyorder: 3
+  
+  resampling:
+    normalized_points: 1000  # points for time normalization
+
+roast_phases:
+  # Phase definitions for analysis
+  drying:
+    start_event: "CHARGE"
+    end_event: "TP"
+    target_ratio: 0.3  # 30% of total time
+  
+  maillard:
+    start_event: "TP"
+    end_event: "FCs"
+    target_ratio: 0.45  # 45% of total time
+  
+  development:
+    start_event: "FCs"
+    end_event: "DROP"
+    target_ratio: 0.25  # 25% of total time
+
+visualization:
+  # Plot styling and configuration
+  figure_size: [12, 8]
+  dpi: 300
+  
+  colors:
+    bean_temp: "#D2691E"  # chocolate
+    env_temp: "#4682B4"   # steel blue
+    ror: "#DC143C"        # crimson
+    events: "#2E8B57"     # sea green
+  
+  event_markers:
+    CHARGE: "^"
+    TP: "s"
+    FCs: "o"
+    DROP: "v"
+  
+  grid:
+    alpha: 0.3
+    linestyle: "--"
+
+validation:
+  # Data validation rules
+  required_events: ["CHARGE", "DROP"]
+  recommended_events: ["TP", "FCs"]
+  
+  duration_limits:
+    min_minutes: 5
+    max_minutes: 20
+  
+  temperature_limits:
+    charge_min: 350
+    charge_max: 450
+    drop_min: 350
+    drop_max: 450
+  
+  rate_of_rise:
+    max_spike: 30  # degrees per minute
+    negative_threshold: -10  # allow brief negative RoR
+
+file_patterns:
+  # File naming and organization
+  input_extensions: [".alog"]
+  output_formats: ["csv", "json", "png"]
+  
+  naming_convention:
+    date_format: "%y-%m-%d_%H%M"
+    required_fields: ["date", "time"]
+    optional_fields: ["origin", "process", "batch"]
+
+batch_processing:
+  # Settings for processing multiple roasts
+  parallel_workers: 4
+  chunk_size: 50
+  
+  export_options:
+    include_raw_data: false
+    include_processed_data: true
+    include_scores: true
+    include_visualizations: false
+
+alerts:
+  # Quality control alerts
+  score_threshold: 40  # alert if score below this
+  duration_alert: 15   # alert if duration over this (minutes)
+  temp_drop_alert: 420 # alert if drop temp over this
+  
+  notifications:
+    enable_console: true
+    enable_file_log: true
+    log_level: "INFO"
